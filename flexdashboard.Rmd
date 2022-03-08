@@ -1,0 +1,75 @@
+---
+title: "Scatter plot of air pollution and brain marker"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    social: menu
+    source_code: embed
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+# prepare the data
+source("functions/scatter_plot.R")
+
+annuam_mri_name <- annual_mri_df %>%
+  select(contains("adj")) %>%
+  colnames(.)
+base_mri_name <- base_MRI_AP_df %>%
+  select(contains("adj")) %>%
+  colnames(.)
+
+AP_name <- c("PM25", "PM10", "NOX")
+```
+
+
+
+Longitudinal plot
+=======================================================================
+
+Inputs {.sidebar}
+-----------------------------------------------------------------------
+```{r}
+radioButtons(inputId = "AP_long", label = "Air pollution Variable", choices = AP_name)
+
+selectInput(
+          inputId = "MRI_long", label = "Brain marker Variable", choices = annuam_mri_name,
+          selected = annuam_mri_name[1])
+```
+
+
+Outpots
+-----------------------------------------------------------------------
+
+### MRI measures are averaged across years
+
+```{r}
+renderPlot({
+    scatter_4yr_AP_MRI(joined_df = annual_MRI_AP_df, MRI_name = input$MRI_long, AP_name = input$AP_long)
+  })
+```
+
+
+Cross-sectional plot
+=======================================================================
+
+Inputs {.sidebar}
+-----------------------------------------------------------------------
+```{r}
+radioButtons(inputId = "AP_cross", label = "Air pollution Variable", choices = AP_name)
+
+selectInput(inputId = "MRI_cross", label = "Brain marker Variable", choices = base_mri_name, selected = base_mri_name[1])
+```
+
+Outputs
+-----------------------------------------------------------------------
+### MRI measures are at baseline
+
+```{r}
+renderPlot({
+    scatter_4yr_AP_MRI(joined_df = base_MRI_AP_df, MRI_name = input$MRI_cross, AP_name = input$AP_cross)})
+```
+
+
+
